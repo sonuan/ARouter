@@ -27,5 +27,42 @@ dependencies {
     implementation 'com.alibaba:fastjson:1.2.48'
 }
 
-apply from: '../install.gradle'
-apply from: '../bintray.gradle'
+//apply from: '../install.gradle'
+//apply from: '../bintray.gradle'
+
+
+apply plugin: 'maven'
+
+uploadArchives {
+    ext {
+        // 远端地址
+        REMOTE_REPO_URL='http://10.10.60.234:8081/repository/maven-releases/'
+        // 包信息
+        PUBLISH_GROUP_ID= 'hb'
+        PUBLISH_ARTIFACT_ID = 'arouter-compiler'
+        PUBLISH_VERSION= '1.2.2-incremental-00'
+    }
+    repositories.mavenDeployer {
+        // 私有仓库的地址，以及账户
+        repository(url: REMOTE_REPO_URL) {
+            authentication(userName: 'android', password: 'android')
+        }
+        pom.project {
+            version PUBLISH_VERSION
+            artifactId PUBLISH_ARTIFACT_ID
+            groupId PUBLISH_GROUP_ID
+            packaging 'aar'
+        }
+    }
+}
+
+//以下代码会生成jar包源文件，如果是不开源码，请不要输入这段
+//aar包内包含注释
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.java.source
+}
+
+artifacts {
+    archives androidSourcesJar
+}
